@@ -1,0 +1,80 @@
+[
+  {
+    "id": "flor-azul",
+    "name": "Flor Azul Plate",
+    "category": "tableware",
+    "categoryName": "Tableware",
+    "placeholder": "Plate image",
+    "price": 42,
+    "color": "blue-flower",
+    "motif": "✿",
+    "description": "A hand-painted floral plate for everyday meals or display.",
+    "featured": true,
+    "sortOrder": 1
+  },
+  {
+    "id": "sol-planter",
+    "name": "Sol Planter",
+    "category": "planters",
+    "categoryName": "Planters",
+    "placeholder": "Planter image",
+    "price": 58,
+    "color": "sun-flower",
+    "motif": "✺",
+    "description": "A sunny home for your favorite plants, painted by hand.",
+    "featured": true,
+    "sortOrder": 2
+  },
+  {
+    "id": "jardin-bowl",
+    "name": "Jardín Serving Bowl",
+    "category": "serveware",
+    "categoryName": "Serveware",
+    "placeholder": "Bowl image",
+    "price": 76,
+    "color": "red-flower",
+    "motif": "❀",
+    "description": "A generous serving bowl with a lively garden motif.",
+    "featured": true,
+    "sortOrder": 3
+  },
+  {
+    "id": "luna-mug",
+    "name": "Luna Coffee Mug",
+    "category": "tableware",
+    "categoryName": "Tableware",
+    "placeholder": "Mug image",
+    "price": 34,
+    "color": "blue-flower",
+    "motif": "✿",
+    "description": "A cheerful mug for slow mornings and warm drinks.",
+    "featured": false,
+    "sortOrder": 4
+  },
+  {
+    "id": "nopal-vase",
+    "name": "Nopal Bud Vase",
+    "category": "decor",
+    "categoryName": "Decor",
+    "placeholder": "Vase image",
+    "price": 49,
+    "color": "sun-flower",
+    "motif": "❋",
+    "description": "A small sculptural vase inspired by the shapes of Puebla.",
+    "featured": false,
+    "sortOrder": 5
+  },
+  {
+    "id": "fiesta-platter",
+    "name": "Fiesta Serving Platter",
+    "category": "serveware",
+    "categoryName": "Serveware",
+    "placeholder": "Platter image",
+    "price": 89,
+    "color": "red-flower",
+    "motif": "✿",
+    "description": "A bright centerpiece for sharing food with family.",
+    "featured": false,
+    "sortOrder": 6
+  }
+]

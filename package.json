@@ -3,14 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "description": "A server-rendered Talavera ceramics shop built with Express and TypeScript",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node server.js",
-    "dev": "npm run build && node server.js"
+    "dev": "npm run build && node server.js",
+    "seed:firestore": "node scripts/seed-firestore.js"
   },
   "dependencies": {
+    "dotenv": "^18.0.10",
     "ejs": "^3.1.10",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "firebase-admin": "^14.5.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
