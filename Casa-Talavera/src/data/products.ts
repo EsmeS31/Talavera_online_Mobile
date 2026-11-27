@@ -2,7 +2,8 @@
 export type Product = {
   id: string;
   name: string;
-  category: 'tableware' | 'planters' | 'serveware' | 'decor';
+  /** Category key stored with this product in Firestore. */
+  category: string;
   categoryName: string;
   placeholder: string;
   price: number;

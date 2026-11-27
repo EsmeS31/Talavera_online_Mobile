@@ -15,16 +15,6 @@ const C = {
   deepBlue: '#081F62',
 };
 
-const categories = [
-  { id: 'all', label: 'All' },
-  { id: 'tableware', label: 'Tableware' },
-  { id: 'planters', label: 'Planters' },
-  { id: 'serveware', label: 'Serveware' },
-  { id: 'decor', label: 'Decor' },
-] as const;
-
-type CategoryId = (typeof categories)[number]['id'];
-
 function formatPrice(price: number) {
   return `$${price.toFixed(2)}`;
 }
@@ -35,16 +25,34 @@ function productBorderColor(product: Product) {
   return C.deepBlue;
 }
 
+function productRows(products: Product[]) {
+  const rows: Product[][] = [];
+  for (let index = 0; index < products.length; index += 2) {
+    rows.push(products.slice(index, index + 2));
+  }
+  return rows;
+}
+
 export default function ShopScreen() {
   const { products, isLoading, error, retry } = useProducts();
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<CategoryId>('all');
+  const [category, setCategory] = useState<string | null>(null);
   const [bag, setBag] = useState<Record<string, number>>({});
+
+  const categories = useMemo(() => {
+    const labels = new Map<string, string>();
+    products.forEach((product) => {
+      const id = product.category?.trim() || product.categoryName.trim().toLowerCase().replace(/\s+/g, '-');
+      const label = product.categoryName?.trim() || product.category;
+      if (id && label && !labels.has(id)) labels.set(id, label);
+    });
+    return [{ id: null, label: 'All' }, ...Array.from(labels, ([id, label]) => ({ id, label }))];
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return products.filter((product) => {
-      const matchesCategory = category === 'all' || product.category === category;
+      const matchesCategory = category === null || product.category === category;
       const searchableText = `${product.name} ${product.categoryName} ${product.description}`.toLowerCase();
       return matchesCategory && (!query || searchableText.includes(query));
     });
@@ -116,49 +124,55 @@ export default function ShopScreen() {
 
           {!isLoading && !error && filteredProducts.length > 0 ? (
             <View style={styles.productGrid}>
-              {filteredProducts.map((product) => {
-                const quantity = bag[product.id] ?? 0;
-                return (
-                  <View key={product.id} style={styles.productCard}>
-                    <Link href={{ pathname: '/products/[id]', params: { id: product.id } }} asChild>
-                      <Pressable
-                        accessibilityRole="link"
-                        accessibilityLabel={`View ${product.name} details`}
-                        style={({ pressed }) => [styles.detailsLink, pressed && styles.pressed]}>
-                        <View style={[styles.productArt, { borderColor: productBorderColor(product) }]}>
-                          {product.imageUrl ? (
-                            <Image source={{ uri: product.imageUrl }} style={styles.productPhoto} contentFit="cover" />
-                          ) : (
-                            <View style={[styles.artInner, product.color === 'sun-flower' && styles.sunArt]}>
-                              <Text style={[styles.motif, { color: productBorderColor(product) }]}>{product.motif}</Text>
-                              <Text style={styles.placeholder}>{product.placeholder}</Text>
+              {productRows(filteredProducts).map((row) => (
+                <View key={row[0].id} style={styles.productRow}>
+                  {row.map((product) => {
+                    const quantity = bag[product.id] ?? 0;
+                    return (
+                      <View key={product.id} style={styles.productCard}>
+                        <Link href={{ pathname: '/products/[id]', params: { id: product.id } }} asChild>
+                          <Pressable
+                            accessibilityRole="link"
+                            accessibilityLabel={`View ${product.name} details`}
+                            style={({ pressed }) => [styles.detailsLink, pressed && styles.pressed]}>
+                            <View style={[styles.productArt, { borderColor: productBorderColor(product) }]}>
+                              {product.imageUrl ? (
+                                <Image source={{ uri: product.imageUrl }} style={styles.productPhoto} contentFit="cover" />
+                              ) : (
+                                <View style={[styles.artInner, product.color === 'sun-flower' && styles.sunArt]}>
+                                  <Text style={[styles.motif, { color: productBorderColor(product) }]}>{product.motif}</Text>
+                                  <Text style={styles.placeholder}>{product.placeholder}</Text>
+                                </View>
+                              )}
                             </View>
-                          )}
-                        </View>
-                        <Text style={styles.productCategory}>{product.categoryName}</Text>
-                        <View style={styles.productHeading}>
-                          <Text style={styles.productName}>{product.name}</Text>
-                          <Text style={styles.price}>{formatPrice(product.price)}</Text>
-                        </View>
-                        <Text style={styles.description}>{product.description}</Text>
-                      </Pressable>
-                    </Link>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`Add ${product.name} to bag`}
-                      onPress={() => addToBag(product.id)}
-                      style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
-                      <Text style={styles.addButtonText}>{quantity > 0 ? `Added · ${quantity}  + Add again` : 'Add to bag'}</Text>
-                    </Pressable>
-                  </View>
-                );
-              })}
+                            <Text style={styles.productCategory}>{product.categoryName}</Text>
+                            <View style={styles.productHeading}>
+                              <Text style={styles.productName}>{product.name}</Text>
+                              <Text style={styles.price}>{formatPrice(product.price)}</Text>
+                            </View>
+                            <Text style={styles.description}>{product.description}</Text>
+                          </Pressable>
+                        </Link>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Add ${product.name} to bag`}
+                          onPress={() => addToBag(product.id)}
+                          style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
+                          <Text style={styles.addButtonText}>
+                            {quantity > 0 ? `Added · ${quantity}  + Add again` : 'Add to bag'}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
             </View>
           ) : (!isLoading && !error && (
             <View style={styles.emptyState}>
               <Text style={styles.emptyTitle}>No pieces found</Text>
               <Text style={styles.emptyText}>Try another name or choose a different category.</Text>
-              <Pressable onPress={() => { setSearch(''); setCategory('all'); }}>
+              <Pressable onPress={() => { setSearch(''); setCategory(null); }}>
                 <Text style={styles.resetLink}>Clear search and filters</Text>
               </Pressable>
             </View>
@@ -192,8 +206,9 @@ const styles = StyleSheet.create({
   statusText: { color: C.mediumBlue, fontSize: 13, paddingVertical: 18 },
   statusCard: { alignItems: 'center', paddingHorizontal: 20, paddingVertical: 30, backgroundColor: C.white, marginTop: 6 },
   resultsCount: { color: C.mediumBlue, fontSize: 12, marginTop: 14, marginBottom: 13 },
-  productGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 22 },
-  productCard: { width: '48.3%' },
+  productGrid: { gap: 22 },
+  productRow: { flexDirection: 'row', alignItems: 'stretch', gap: 12 },
+  productCard: { flex: 1, minWidth: 0, display: 'flex' },
   detailsLink: { flex: 1 },
   productArt: { width: '100%', aspectRatio: 0.92, borderWidth: 8, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center', padding: 5 },
   productPhoto: { width: '100%', height: '100%' },
@@ -202,11 +217,11 @@ const styles = StyleSheet.create({
   motif: { fontSize: 66 },
   placeholder: { position: 'absolute', bottom: 8, color: C.mediumBlue, fontSize: 9, backgroundColor: C.white, paddingHorizontal: 5 },
   productCategory: { color: C.mediumBlue, fontSize: 9, fontWeight: '800', letterSpacing: 1, marginTop: 11, textTransform: 'uppercase' },
-  productHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 5, marginTop: 4 },
+  productHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 5, marginTop: 4, minHeight: 54 },
   productName: { flex: 1, color: C.darkBlue, fontSize: 13, fontWeight: '700', lineHeight: 18 },
   price: { color: C.mediumBlue, fontSize: 12, fontWeight: '700' },
-  description: { color: C.mediumBlue, fontSize: 10, lineHeight: 15, marginTop: 6, minHeight: 45 },
-  addButton: { minHeight: 39, backgroundColor: C.darkBlue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginTop: 9 },
+  description: { color: C.mediumBlue, fontSize: 10, lineHeight: 15, marginTop: 6, minHeight: 75 },
+  addButton: { minHeight: 39, backgroundColor: C.darkBlue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5, marginTop: 'auto' },
   addButtonPressed: { backgroundColor: C.mediumBlue },
   addButtonText: { color: C.white, fontSize: 10, fontWeight: '700' },
   emptyState: { alignItems: 'center', paddingHorizontal: 20, paddingVertical: 45, backgroundColor: C.white, marginTop: 6 },
