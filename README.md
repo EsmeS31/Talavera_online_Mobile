@@ -4,7 +4,8 @@ Casa Talavera is a cross-platform mobile app for exploring hand-painted Talavera
 
 I created Casa Talavera to build my skills as a software engineer by learning how to make a mobile experience with React Native, connect it to a server API, and display live product data from Firestore. I also wanted to make the Casa Talavera catalog easier to explore on a phone.
 
-**Software Demo Video:** Add the public or unlisted YouTube link here after recording the 4–5 minute app demo and code walkthrough.
+[Software Demo Video](https://youtu.be/bVUE58omUHc)
+
 
 # Development Environment
 
